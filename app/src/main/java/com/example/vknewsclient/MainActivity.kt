@@ -36,7 +36,7 @@ import com.example.vknewsclient.ui.theme.VkNewsClientTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //enableEdgeToEdge()
+
         setContent {
             VkNewsClientTheme {
                 Box(
@@ -45,7 +45,6 @@ class MainActivity : ComponentActivity() {
                         .background(MaterialTheme.colorScheme.background)
                 ) {
                     MainScreen()
-                    //PostCard()
                 }
             }
         }
