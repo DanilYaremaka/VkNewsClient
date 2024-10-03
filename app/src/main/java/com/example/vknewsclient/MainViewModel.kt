@@ -3,7 +3,6 @@ package com.example.vknewsclient
 import androidx.lifecycle.ViewModel
 import com.example.vknewsclient.domain.entity.FeedPost
 import com.example.vknewsclient.domain.entity.StatisticItem
-import com.example.vknewsclient.ui.theme.NavigationItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +17,6 @@ class MainViewModel : ViewModel() {
 
     private val _feedPosts = MutableStateFlow<List<FeedPost>>(sourceList)
     val feedPosts: StateFlow<List<FeedPost>> = _feedPosts.asStateFlow()
-
-    private val _selectedNavItem = MutableStateFlow<NavigationItem>(NavigationItem.Home)
-    val selectedNavItem: StateFlow<NavigationItem> = _selectedNavItem
-
-    fun selectNavItem(item: NavigationItem) {
-        _selectedNavItem.value = item
-    }
 
     fun updateStatistics(feedPost: FeedPost, item: StatisticItem) {
         val oldPosts = _feedPosts.value.toMutableList()

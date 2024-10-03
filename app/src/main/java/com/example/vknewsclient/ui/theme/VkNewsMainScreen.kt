@@ -11,22 +11,25 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.vknewsclient.MainViewModel
+import com.example.vknewsclient.navigation.AppNavGraph
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
-    val selectedNavItem by viewModel.selectedNavItem.collectAsState()
+    val navHostController = rememberNavController()
 
     Scaffold(
         bottomBar = {
             NavigationBar {
-
+                val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
                 val items = listOf(
                     NavigationItem.Home,
                     NavigationItem.Favorite,
@@ -34,9 +37,9 @@ fun MainScreen(
                 )
                 items.forEach { item ->
                     NavigationBarItem(
-                        selected = selectedNavItem == item,
+                        selected = currentRoute == item.screen.route,
                         onClick = {
-                            viewModel.selectNavItem(item)
+                            navHostController.navigate(item.screen.route)
                         },
                         icon = { Icon(imageVector = item.icon, contentDescription = null) },
                         label = {
@@ -47,14 +50,17 @@ fun MainScreen(
             }
         },
     ) { paddingValues ->
-        when(selectedNavItem) {
-            NavigationItem.Favorite -> Text(text = "Favorite")
-            NavigationItem.Home -> HomeScreen(
-            viewModel = viewModel,
-            paddingValues = paddingValues
-        )
-            NavigationItem.Profile -> Text(text = "Profile")
-        }
+        AppNavGraph(
+            navHostController = navHostController,
+            homeScreenContent = {
+                HomeScreen(
+                    viewModel = viewModel,
+                    paddingValues = paddingValues
+                )
+            },
+            favouriteScreenContent = { Text(text = "Favorite 2") },
+            profileScreenContent = {Text(text = "Profile 3")})
+
     }
 }
 
