@@ -14,21 +14,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.vknewsclient.MainViewModel
 import com.example.vknewsclient.navigation.AppNavGraph
+import com.example.vknewsclient.navigation.rememberNavigationState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
-    val navHostController = rememberNavController()
+    val navigationState = rememberNavigationState()
 
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+                val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
                 val items = listOf(
                     NavigationItem.Home,
@@ -39,7 +39,7 @@ fun MainScreen(
                     NavigationBarItem(
                         selected = currentRoute == item.screen.route,
                         onClick = {
-                            navHostController.navigate(item.screen.route)
+                            navigationState.navigateTo(item.screen.route)
                         },
                         icon = { Icon(imageVector = item.icon, contentDescription = null) },
                         label = {
@@ -51,7 +51,7 @@ fun MainScreen(
         },
     ) { paddingValues ->
         AppNavGraph(
-            navHostController = navHostController,
+            navHostController = navigationState.navHostController,
             homeScreenContent = {
                 HomeScreen(
                     viewModel = viewModel,
