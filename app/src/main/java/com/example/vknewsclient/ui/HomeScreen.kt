@@ -1,6 +1,6 @@
-package com.example.vknewsclient.ui.theme
+package com.example.vknewsclient.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -15,16 +15,51 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.vknewsclient.MainViewModel
+import com.example.vknewsclient.domain.entity.FeedPost
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: MainViewModel,
     paddingValues: PaddingValues
 ) {
 
-    val feedPosts = viewModel.feedPosts.collectAsState(listOf())
+    val screenState = viewModel.screenState.collectAsState(HomeScreenState.Initial)
 
+    when (val state = screenState.value) {
+        is HomeScreenState.Comments -> {
+            CommentsScreen(
+                feedPost = state.feedPost,
+                comments = state.comments,
+                onBackPressed = {
+                    viewModel.closeComments()
+                }
+            )
+            BackHandler {
+                viewModel.closeComments()
+            }
+        }
+
+        is HomeScreenState.Posts -> {
+            FeedPosts(
+                viewModel = viewModel,
+                paddingValues = paddingValues,
+                posts = state.posts
+            )
+        }
+
+        HomeScreenState.Initial -> {
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FeedPosts(
+    viewModel: MainViewModel,
+    posts: List<FeedPost>,
+    paddingValues: PaddingValues
+) {
     LazyColumn(
         modifier = Modifier.padding(paddingValues),
         contentPadding = PaddingValues(
@@ -36,18 +71,20 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(
-            items = feedPosts.value,
+            items = posts,
             key = { it.hashCode() }
         ) { feedPost ->
             val dismissBoxState = rememberSwipeToDismissBoxState(
                 confirmValueChange = {
-                    when(it) {
+                    when (it) {
                         SwipeToDismissBoxValue.StartToEnd -> {
                             return@rememberSwipeToDismissBoxState false
                         }
+
                         SwipeToDismissBoxValue.EndToStart -> {
                             viewModel.remove(feedPost)
                         }
+
                         SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
                     }
                     return@rememberSwipeToDismissBoxState true
@@ -55,7 +92,7 @@ fun HomeScreen(
                 positionalThreshold = { it * .70f }
             )
             SwipeToDismissBox(
-                modifier = Modifier.animateItemPlacement(),
+                modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null),
                 state = dismissBoxState,
                 backgroundContent = {},
                 enableDismissFromStartToEnd = false
@@ -68,8 +105,8 @@ fun HomeScreen(
                     onShareClickListener = { item ->
                         viewModel.updateStatistics(feedPost, item)
                     },
-                    onCommentClickListener = { item ->
-                        viewModel.updateStatistics(feedPost, item)
+                    onCommentClickListener = {
+                        viewModel.showComments(feedPost)
                     },
                     onLikeClickListener = { item ->
                         viewModel.updateStatistics(feedPost, item)
