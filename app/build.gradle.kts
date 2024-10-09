@@ -64,6 +64,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -22,34 +22,58 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.vknewsclient.CommentsViewModel
 import com.example.vknewsclient.domain.entity.FeedPost
 import com.example.vknewsclient.domain.entity.PostComment
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CommentsScreen(
+    onBackPressed: () -> Unit
+) {
+    val viewModel: CommentsViewModel = viewModel()
+    val screenState = viewModel.screenState.collectAsState(CommentsScreenState.Initial)
+
+    when(val state = screenState.value) {
+        is CommentsScreenState.Comments -> {
+           ShowComments(
+               feedPost = state.feedPost,
+               comments = state.comments,
+               onBackPressed = onBackPressed
+           )
+        }
+        CommentsScreenState.Initial -> {
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ShowComments(
     feedPost: FeedPost,
     comments: List<PostComment>,
     onBackPressed: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { 
+            TopAppBar(title = {
                 Text(text = "Comments for FeedPost Id: ${feedPost.id}")
             },
-            navigationIcon = {
-                IconButton(onClick = onBackPressed) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null
-                    )
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
                 }
-            }
             )
         }
     ) { paddingValues ->
